@@ -63,6 +63,7 @@ from open_webui.tools.builtin import (
     fetch_url,
     generate_image,
     edit_image,
+    generate_music,
     execute_code,
     search_memories,
     add_memory,
@@ -513,6 +514,16 @@ async def get_builtin_tools(
         and await has_user_permission('image_generation')
     ):
         builtin_functions.append(edit_image)
+
+    # Add music generation tool if builtin category enabled AND enabled globally AND model has music_generation capability
+    if (
+        is_builtin_tool_enabled('music_generation')
+        and getattr(request.app.state.config, 'ENABLE_MUSIC_GENERATION', False)
+        and get_model_capability('music_generation')
+        and features.get('music_generation')
+        and await has_user_permission('image_generation')
+    ):
+        builtin_functions.append(generate_music)
 
     # Add code interpreter tool if builtin category enabled AND enabled globally AND model has code_interpreter capability
     if (

@@ -12,6 +12,7 @@
 	import Pipelines from './Settings/Pipelines.svelte';
 	import Audio from './Settings/Audio.svelte';
 	import Images from './Settings/Images.svelte';
+	import Music from './Settings/Music.svelte';
 	import Interface from './Settings/Interface.svelte';
 	import Models from './Settings/Models.svelte';
 	import Connections from './Settings/Connections.svelte';
@@ -47,6 +48,7 @@
 			'interface',
 			'audio',
 			'images',
+			'music',
 			'pipelines',
 			'db'
 		].includes(tabFromPath)
@@ -231,6 +233,12 @@
 				'automatic1111',
 				'gemini'
 			]
+		},
+		{
+			id: 'music',
+			title: 'Music',
+			route: '/admin/settings/music',
+			keywords: ['music', 'generation', 'song', 'mureka', 'audio']
 		},
 		{
 			id: 'pipelines',
@@ -464,6 +472,17 @@
 								clip-rule="evenodd"
 							/>
 						</svg>
+					{:else if tab.id === 'music'}
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							viewBox="0 0 16 16"
+							fill="currentColor"
+							class="w-4 h-4"
+						>
+							<path d="M9 13c0 1.105-1.12 2-2.5 2S4 14.105 4 13s1.12-2 2.5-2 2.5.895 2.5 2Z" />
+							<path fill-rule="evenodd" d="M9 3v10H8V3h1Z" clip-rule="evenodd" />
+							<path d="M8 2.798a1 1 0 0 1 .713-.958l3-.9A1 1 0 0 1 13 1.9V4L8 5.5V2.798Z" />
+						</svg>
 					{:else if tab.id === 'pipelines'}
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
@@ -568,6 +587,12 @@
 			/>
 		{:else if selectedTab === 'images'}
 			<Images
+				on:save={() => {
+					toast.success($i18n.t('Settings saved successfully!'));
+				}}
+			/>
+		{:else if selectedTab === 'music'}
+			<Music
 				on:save={() => {
 					toast.success($i18n.t('Settings saved successfully!'));
 				}}

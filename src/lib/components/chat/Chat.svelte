@@ -153,6 +153,7 @@
 	let pendingOAuthTools = [];
 
 	let imageGenerationEnabled = false;
+	let musicGenerationEnabled = false;
 	let webSearchEnabled = false;
 	let codeInterpreterEnabled = false;
 
@@ -209,6 +210,7 @@
 		selectedFilterIds = [];
 		webSearchEnabled = false;
 		imageGenerationEnabled = false;
+		musicGenerationEnabled = false;
 
 		const storageChatInput = sessionStorage.getItem(
 			`chat-input${chatIdProp ? `-${chatIdProp}` : ''}`
@@ -244,6 +246,7 @@
 						selectedFilterIds = input.selectedFilterIds;
 						webSearchEnabled = input.webSearchEnabled;
 						imageGenerationEnabled = input.imageGenerationEnabled;
+						musicGenerationEnabled = input.musicGenerationEnabled;
 						codeInterpreterEnabled = input.codeInterpreterEnabled;
 					}
 				} catch (e) {}
@@ -305,6 +308,7 @@
 		pendingOAuthTools = [];
 		webSearchEnabled = false;
 		imageGenerationEnabled = false;
+		musicGenerationEnabled = false;
 		codeInterpreterEnabled = false;
 
 		if (selectedModelIds.filter((id) => id).length > 0) {
@@ -379,6 +383,14 @@
 					($user?.role === 'admin' || $user?.permissions?.features?.image_generation)
 				) {
 					imageGenerationEnabled = model.info.meta.defaultFeatureIds.includes('image_generation');
+				}
+
+				if (
+					model.info?.meta?.capabilities?.['music_generation'] &&
+					$config?.features?.enable_music_generation &&
+					($user?.role === 'admin' || ($user?.permissions?.features?.image_generation ?? true))
+				) {
+					musicGenerationEnabled = model.info.meta.defaultFeatureIds.includes('music_generation');
 				}
 
 				if (
@@ -811,6 +823,7 @@
 				selectedFilterIds = [];
 				webSearchEnabled = false;
 				imageGenerationEnabled = false;
+				musicGenerationEnabled = false;
 				codeInterpreterEnabled = false;
 
 				try {
@@ -823,6 +836,7 @@
 						selectedFilterIds = input.selectedFilterIds;
 						webSearchEnabled = input.webSearchEnabled;
 						imageGenerationEnabled = input.imageGenerationEnabled;
+						musicGenerationEnabled = input.musicGenerationEnabled;
 						codeInterpreterEnabled = input.codeInterpreterEnabled;
 					}
 				} catch (e) {}
@@ -1248,6 +1262,10 @@
 
 		if ($page.url.searchParams.get('image-generation') === 'true') {
 			imageGenerationEnabled = true;
+		}
+
+		if ($page.url.searchParams.get('music-generation') === 'true') {
+			musicGenerationEnabled = true;
 		}
 
 		if ($page.url.searchParams.get('code-interpreter') === 'true') {
@@ -2188,6 +2206,11 @@
 					($user?.role === 'admin' || $user?.permissions?.features?.image_generation)
 						? imageGenerationEnabled
 						: false,
+				music_generation:
+					$config?.features?.enable_music_generation &&
+					($user?.role === 'admin' || ($user?.permissions?.features?.image_generation ?? true))
+						? musicGenerationEnabled
+						: false,
 				code_interpreter:
 					$config?.features?.enable_code_interpreter &&
 					($user?.role === 'admin' || $user?.permissions?.features?.code_interpreter)
@@ -3104,6 +3127,7 @@
 									bind:selectedToolIds
 									bind:selectedFilterIds
 									bind:imageGenerationEnabled
+								bind:musicGenerationEnabled
 									bind:codeInterpreterEnabled
 									{pendingOAuthTools}
 									bind:webSearchEnabled
@@ -3185,6 +3209,7 @@
 									bind:selectedToolIds
 									bind:selectedFilterIds
 									bind:imageGenerationEnabled
+								bind:musicGenerationEnabled
 									bind:codeInterpreterEnabled
 									bind:webSearchEnabled
 									bind:atSelectedModel

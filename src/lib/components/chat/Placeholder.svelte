@@ -53,6 +53,7 @@
 	export let showCommands = false;
 
 	export let imageGenerationEnabled = false;
+	export let musicGenerationEnabled = false;
 	export let codeInterpreterEnabled = false;
 	export let webSearchEnabled = false;
 
@@ -219,6 +220,7 @@
 					bind:selectedToolIds
 					bind:selectedFilterIds
 					bind:imageGenerationEnabled
+					bind:musicGenerationEnabled
 					bind:codeInterpreterEnabled
 					bind:webSearchEnabled
 					bind:atSelectedModel

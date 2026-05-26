@@ -3938,6 +3938,40 @@ IMAGES_EDIT_COMFYUI_WORKFLOW_NODES = PersistentConfig(
 )
 
 ####################################
+# Music
+####################################
+
+ENABLE_MUSIC_GENERATION = PersistentConfig(
+    'ENABLE_MUSIC_GENERATION',
+    'music_generation.enable',
+    os.environ.get('ENABLE_MUSIC_GENERATION', '').lower() == 'true',
+)
+
+MUSIC_GENERATION_ENGINE = PersistentConfig(
+    'MUSIC_GENERATION_ENGINE',
+    'music_generation.engine',
+    os.getenv('MUSIC_GENERATION_ENGINE', 'mureka'),
+)
+
+MUSIC_GENERATION_MODEL = PersistentConfig(
+    'MUSIC_GENERATION_MODEL',
+    'music_generation.model',
+    os.getenv('MUSIC_GENERATION_MODEL', 'auto'),
+)
+
+MUREKA_API_BASE_URL = PersistentConfig(
+    'MUREKA_API_BASE_URL',
+    'music_generation.mureka.base_url',
+    os.getenv('MUREKA_API_BASE_URL', 'https://api.mureka.ai/v1'),
+)
+
+MUREKA_API_KEY = PersistentConfig(
+    'MUREKA_API_KEY',
+    'music_generation.mureka.api_key',
+    os.getenv('MUREKA_API_KEY', ''),
+)
+
+####################################
 # Audio
 ####################################
 

@@ -47,6 +47,8 @@
 	export let webSearchEnabled = false;
 	export let showImageGenerationButton = false;
 	export let imageGenerationEnabled = false;
+	export let showMusicGenerationButton = false;
+	export let musicGenerationEnabled = false;
 	export let showCodeInterpreterButton = false;
 	export let codeInterpreterEnabled = false;
 
@@ -270,6 +272,46 @@
 								<div class=" shrink-0">
 									<Switch
 										state={imageGenerationEnabled}
+										on:change={async (e) => {
+											const state = e.detail;
+											await tick();
+										}}
+									/>
+								</div>
+							</button>
+						</Tooltip>
+					{/if}
+
+					{#if showMusicGenerationButton}
+						<Tooltip content={$i18n.t('Generate music')} placement="top-start">
+							<button
+								class="flex w-full justify-between gap-2 items-center px-3 py-1.5 text-sm cursor-pointer rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800/50"
+								on:click={() => {
+									musicGenerationEnabled = !musicGenerationEnabled;
+								}}
+							>
+								<div class="flex-1 truncate">
+									<div class="flex flex-1 gap-2 items-center">
+										<div class="shrink-0">
+											<svg
+												xmlns="http://www.w3.org/2000/svg"
+												viewBox="0 0 16 16"
+												fill="currentColor"
+												class="size-4"
+											>
+												<path d="M9 13c0 1.105-1.12 2-2.5 2S4 14.105 4 13s1.12-2 2.5-2 2.5.895 2.5 2Z" />
+												<path fill-rule="evenodd" d="M9 3v10H8V3h1Z" clip-rule="evenodd" />
+												<path d="M8 2.798a1 1 0 0 1 .713-.958l3-.9A1 1 0 0 1 13 1.9V4L8 5.5V2.798Z" />
+											</svg>
+										</div>
+
+										<div class=" truncate">{$i18n.t('Music')}</div>
+									</div>
+								</div>
+
+								<div class=" shrink-0">
+									<Switch
+										state={musicGenerationEnabled}
 										on:change={async (e) => {
 											const state = e.detail;
 											await tick();

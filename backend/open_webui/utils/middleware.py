@@ -52,6 +52,10 @@ from open_webui.routers.images import (
     image_edits,
     EditImageForm,
 )
+from open_webui.routers.music import (
+    music_generations,
+    MusicForm,
+)
 from open_webui.routers.pipelines import (
     process_pipeline_inlet_filter,
     process_pipeline_outlet_filter,
@@ -1948,6 +1952,97 @@ async def chat_image_generation_handler(request: Request, form_data: dict, extra
     return form_data
 
 
+async def chat_music_generation_handler(request: Request, form_data: dict, extra_params: dict, user):
+    metadata = extra_params.get('__metadata__', {})
+    chat_id = metadata.get('chat_id', None)
+    __event_emitter__ = extra_params.get('__event_emitter__', None)
+
+    if not chat_id or not isinstance(chat_id, str) or not __event_emitter__:
+        return form_data
+
+    if chat_id.startswith('local:') or chat_id.startswith('channel:'):
+        message_list = form_data.get('messages', [])
+    else:
+        chat = await Chats.get_chat_by_id_and_user_id(chat_id, user.id)
+        await __event_emitter__(
+            {
+                'type': 'status',
+                'data': {'description': 'Creating music', 'done': False},
+            }
+        )
+
+        messages_map = chat.chat.get('history', {}).get('messages', {})
+        message_id = chat.chat.get('history', {}).get('currentId')
+        message_list = get_message_list(messages_map, message_id)
+
+    prompt = get_last_user_message(message_list)
+
+    system_message_content = ''
+
+    try:
+        tracks = await music_generations(
+            request=request,
+            form_data=MusicForm(**{'prompt': prompt}),
+            metadata={
+                'chat_id': metadata.get('chat_id', None),
+                'message_id': metadata.get('message_id', None),
+            },
+            user=user,
+        )
+
+        await __event_emitter__(
+            {
+                'type': 'status',
+                'data': {'description': 'Music created', 'done': True},
+            }
+        )
+
+        await __event_emitter__(
+            {
+                'type': 'files',
+                'data': {
+                    'files': [
+                        {
+                            'type': 'file',
+                            'url': track['url'],
+                            'name': 'generated-music.mp3',
+                            'content_type': 'audio/mpeg',
+                        }
+                        for track in tracks
+                    ]
+                },
+            }
+        )
+
+        system_message_content = '<context>The requested music has been created by the system successfully and is now being shown to the user. Let the user know that the music they requested has been generated and is now playable in the chat.</context>'
+    except Exception as e:
+        log.debug(e)
+
+        error_message = ''
+        if isinstance(e, HTTPException):
+            if e.detail and isinstance(e.detail, dict):
+                error_message = e.detail.get('message', str(e.detail))
+            else:
+                error_message = str(e.detail)
+
+        await __event_emitter__(
+            {
+                'type': 'status',
+                'data': {
+                    'description': 'An error occurred while generating music',
+                    'done': True,
+                },
+            }
+        )
+
+        system_message_content = f'<context>Music generation was attempted but failed because of an error. The system is currently unable to generate the music. Tell the user that the following error occurred: {error_message}</context>'
+
+    if system_message_content:
+        form_data['messages'] = add_or_update_system_message(system_message_content, form_data['messages'])
+
+    return form_data
+
+
 async def chat_completion_files_handler(
     request: Request, body: dict, extra_params: dict, user: UserModel
 ) -> tuple[dict, dict[str, list]]:
@@ -2514,6 +2609,10 @@ async def process_chat_payload(request, form_data, user, metadata, model):
             # Skip forced image generation when native FC is enabled - model can use generate_image tool
             if metadata.get('params', {}).get('function_calling') != 'native':
                 form_data = await chat_image_generation_handler(request, form_data, extra_params, user)
+
+        if 'music_generation' in features and features['music_generation']:
+            if metadata.get('params', {}).get('function_calling') != 'native':
+                form_data = await chat_music_generation_handler(request, form_data, extra_params, user)
 
         if 'code_interpreter' in features and features['code_interpreter']:
             engine = getattr(request.app.state.config, 'CODE_INTERPRETER_ENGINE', 'pyodide')

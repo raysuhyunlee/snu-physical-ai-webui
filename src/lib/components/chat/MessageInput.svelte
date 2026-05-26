@@ -134,6 +134,7 @@
 	export let selectedFilterIds = [];
 
 	export let imageGenerationEnabled = false;
+	export let musicGenerationEnabled = false;
 	export let webSearchEnabled = false;
 	export let codeInterpreterEnabled = false;
 
@@ -178,6 +179,7 @@
 		selectedToolIds,
 		selectedFilterIds,
 		imageGenerationEnabled,
+		musicGenerationEnabled,
 		webSearchEnabled,
 		codeInterpreterEnabled
 	});
@@ -487,6 +489,14 @@
 			$models.find((m) => m.id === model)?.info?.meta?.capabilities?.image_generation ?? true
 	);
 
+	let musicGenerationCapableModels = [];
+	$: musicGenerationCapableModels = (
+		atSelectedModel?.id ? [atSelectedModel.id] : selectedModels
+	).filter(
+		(model) =>
+			$models.find((m) => m.id === model)?.info?.meta?.capabilities?.music_generation ?? true
+	);
+
 	let codeInterpreterCapableModels = [];
 	$: codeInterpreterCapableModels = (
 		atSelectedModel?.id ? [atSelectedModel.id] : selectedModels
@@ -521,6 +531,13 @@
 			imageGenerationCapableModels.length &&
 		$config?.features?.enable_image_generation &&
 		($_user.role === 'admin' || $_user?.permissions?.features?.image_generation);
+
+	let showMusicGenerationButton = false;
+	$: showMusicGenerationButton =
+		(atSelectedModel?.id ? [atSelectedModel.id] : selectedModels).length ===
+			musicGenerationCapableModels.length &&
+		$config?.features?.enable_music_generation &&
+		($_user.role === 'admin' || ($_user?.permissions?.features?.image_generation ?? true));
 
 	let showCodeInterpreterButton = false;
 	$: showCodeInterpreterButton =
@@ -1560,6 +1577,7 @@
 
 															webSearchEnabled = false;
 															imageGenerationEnabled = false;
+															musicGenerationEnabled = false;
 															codeInterpreterEnabled = false;
 														}
 													}}
@@ -1678,11 +1696,13 @@
 											{toggleFilters}
 											{showWebSearchButton}
 											{showImageGenerationButton}
+											{showMusicGenerationButton}
 											{showCodeInterpreterButton}
 											bind:selectedToolIds
 											bind:selectedFilterIds
 											bind:webSearchEnabled
 											bind:imageGenerationEnabled
+											bind:musicGenerationEnabled
 											bind:codeInterpreterEnabled
 											closeOnOutsideClick={integrationsMenuCloseOnOutsideClick}
 											onShowValves={(e) => {
@@ -1840,6 +1860,33 @@
 														: 'bg-transparent text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 '}"
 												>
 													<Photo className="size-4" strokeWidth="1.75" />
+													<div class="hidden group-hover:block">
+														<XMark className="size-4" strokeWidth="1.75" />
+													</div>
+												</button>
+											</Tooltip>
+										{/if}
+
+										{#if musicGenerationEnabled}
+											<Tooltip content={$i18n.t('Music')} placement="top">
+												<button
+													on:click|preventDefault={() =>
+														(musicGenerationEnabled = !musicGenerationEnabled)}
+													type="button"
+													class="group p-[7px] flex gap-1.5 items-center text-sm rounded-full transition-colors duration-300 focus:outline-hidden max-w-full overflow-hidden {musicGenerationEnabled
+														? ' text-sky-500 dark:text-sky-300 bg-sky-50 hover:bg-sky-100 dark:bg-sky-400/10 dark:hover:bg-sky-700/10 border border-sky-200/40 dark:border-sky-500/20'
+														: 'bg-transparent text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 '}"
+												>
+													<svg
+														xmlns="http://www.w3.org/2000/svg"
+														viewBox="0 0 16 16"
+														fill="currentColor"
+														class="size-4"
+													>
+														<path d="M9 13c0 1.105-1.12 2-2.5 2S4 14.105 4 13s1.12-2 2.5-2 2.5.895 2.5 2Z" />
+														<path fill-rule="evenodd" d="M9 3v10H8V3h1Z" clip-rule="evenodd" />
+														<path d="M8 2.798a1 1 0 0 1 .713-.958l3-.9A1 1 0 0 1 13 1.9V4L8 5.5V2.798Z" />
+													</svg>
 													<div class="hidden group-hover:block">
 														<XMark className="size-4" strokeWidth="1.75" />
 													</div>

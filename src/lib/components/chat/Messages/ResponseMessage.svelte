@@ -708,6 +708,10 @@
 									<div>
 										{#if file.type === 'image' || (file?.content_type ?? '').startsWith('image/')}
 											<Image src={file.url} alt={message.content} />
+										{:else if (file?.content_type ?? '').startsWith('audio/') || /\.(mp3|wav|flac|ogg|m4a)$/i.test(file?.name ?? '')}
+											<audio controls src={file.url} class="w-full min-w-80">
+												<track kind="captions" />
+											</audio>
 										{:else}
 											<FileItem
 												item={file}

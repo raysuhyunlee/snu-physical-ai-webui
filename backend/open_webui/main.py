@@ -79,6 +79,7 @@ from open_webui.routers import (
     analytics,
     audio,
     images,
+    music,
     ollama,
     openai,
     retrieval,
@@ -195,6 +196,12 @@ from open_webui.config import (
     IMAGES_EDIT_COMFYUI_API_KEY,
     IMAGES_EDIT_COMFYUI_WORKFLOW,
     IMAGES_EDIT_COMFYUI_WORKFLOW_NODES,
+    # Music
+    ENABLE_MUSIC_GENERATION,
+    MUSIC_GENERATION_ENGINE,
+    MUSIC_GENERATION_MODEL,
+    MUREKA_API_BASE_URL,
+    MUREKA_API_KEY,
     # Audio
     AUDIO_STT_ENGINE,
     AUDIO_STT_MODEL,
@@ -1293,6 +1300,19 @@ app.state.config.IMAGES_EDIT_COMFYUI_WORKFLOW_NODES = IMAGES_EDIT_COMFYUI_WORKFL
 
 ########################################
 #
+# MUSIC
+#
+########################################
+
+app.state.config.ENABLE_MUSIC_GENERATION = ENABLE_MUSIC_GENERATION
+app.state.config.MUSIC_GENERATION_ENGINE = MUSIC_GENERATION_ENGINE
+app.state.config.MUSIC_GENERATION_MODEL = MUSIC_GENERATION_MODEL
+app.state.config.MUREKA_API_BASE_URL = MUREKA_API_BASE_URL
+app.state.config.MUREKA_API_KEY = MUREKA_API_KEY
+
+
+########################################
+#
 # AUDIO
 #
 ########################################
@@ -1423,6 +1443,7 @@ app.include_router(openai.router, prefix='/openai', tags=['openai'])
 app.include_router(pipelines.router, prefix='/api/v1/pipelines', tags=['pipelines'])
 app.include_router(tasks.router, prefix='/api/v1/tasks', tags=['tasks'])
 app.include_router(images.router, prefix='/api/v1/images', tags=['images'])
+app.include_router(music.router, prefix='/api/v1/music', tags=['music'])
 
 app.include_router(audio.router, prefix='/api/v1/audio', tags=['audio'])
 app.include_router(retrieval.router, prefix='/api/v1/retrieval', tags=['retrieval'])
@@ -2380,6 +2401,7 @@ async def get_app_config(request: Request):
                     'enable_code_execution': app.state.config.ENABLE_CODE_EXECUTION,
                     'enable_code_interpreter': app.state.config.ENABLE_CODE_INTERPRETER,
                     'enable_image_generation': app.state.config.ENABLE_IMAGE_GENERATION,
+                    'enable_music_generation': app.state.config.ENABLE_MUSIC_GENERATION,
                     'enable_autocomplete_generation': app.state.config.ENABLE_AUTOCOMPLETE_GENERATION,
                     'enable_community_sharing': app.state.config.ENABLE_COMMUNITY_SHARING,
                     'enable_message_rating': app.state.config.ENABLE_MESSAGE_RATING,
