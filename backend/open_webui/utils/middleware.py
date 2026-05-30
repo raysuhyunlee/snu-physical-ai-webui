@@ -74,6 +74,7 @@ from open_webui.utils.files import (
 from open_webui.models.users import UserModel
 from open_webui.models.functions import Functions
 from open_webui.models.models import Models
+from open_webui.models.courses import Courses
 
 from open_webui.retrieval.utils import get_sources_from_items
 
@@ -2556,6 +2557,24 @@ async def process_chat_payload(request, form_data, user, metadata, model):
         files = form_data.get('files', [])
         files.extend(knowledge_files)
         form_data['files'] = files
+
+    # Course-specific knowledge: inject the active course's backing collection
+    # so RAG retrieves from its materials. Courses are open access (every user
+    # can query any course), so we attach it as a bare collection name, which
+    # bypasses the per-knowledge access-grant gate in get_sources_from_items.
+    course_id = form_data.pop('course_id', None)
+    if course_id and metadata.get('params', {}).get('function_calling') != 'native':
+        course = await Courses.get_course_by_id(course_id)
+        if course and course.knowledge_id:
+            files = form_data.get('files', [])
+            if not any(f.get('collection_name') == course.knowledge_id for f in files):
+                files.append(
+                    {
+                        'collection_name': course.knowledge_id,
+                        'name': course.name,
+                    }
+                )
+            form_data['files'] = files
 
     variables = form_data.pop('variables', None)
     payload_tools = form_data.get('tools', None)  # snapshot before filters

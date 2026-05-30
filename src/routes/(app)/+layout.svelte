@@ -10,6 +10,7 @@
 	import { fade } from 'svelte/transition';
 
 	import { getModels, getToolServersData, getVersionUpdates } from '$lib/apis';
+	import { getCourses } from '$lib/apis/courses';
 	import { getTools } from '$lib/apis/tools';
 	import { getBanners } from '$lib/apis/configs';
 	import { getTerminalServers } from '$lib/apis/terminal';
@@ -24,6 +25,8 @@
 		settings,
 		models,
 		knowledge,
+		courses,
+		selectedCourse,
 		tools,
 		functions,
 		tags,
@@ -119,6 +122,27 @@
 		);
 	};
 
+	const setCourses = async () => {
+		const res = await getCourses(localStorage.token).catch(() => null);
+		const items = (res?.items ?? []).sort((a, b) =>
+			(a.name ?? '').localeCompare(b.name ?? '')
+		);
+		courses.set(items);
+
+		// Always keep exactly one course selected when any exist: restore the
+		// saved selection if still valid, otherwise default to the first course.
+		const savedId = localStorage.getItem('selectedCourseId');
+		let current = savedId ? items.find((c) => c.id === savedId) : null;
+		if (!current && items.length > 0) current = items[0];
+
+		selectedCourse.set(current ?? null);
+		if (current?.id) {
+			localStorage.setItem('selectedCourseId', current.id);
+		} else {
+			localStorage.removeItem('selectedCourseId');
+		}
+	};
+
 	const setToolServers = async () => {
 		let toolServersData = await getToolServersData($settings?.toolServers ?? []);
 		toolServersData = toolServersData.filter((data) => {
@@ -206,6 +230,7 @@
 			checkLocalDBChats(),
 			setBanners().catch((e) => console.error('Failed to load banners:', e)),
 			setTools().catch((e) => console.error('Failed to load tools:', e)),
+			setCourses().catch((e) => console.error('Failed to load courses:', e)),
 			setUserSettings(async () => {
 				await Promise.all([
 					setModels().catch((e) => console.error('Failed to load models:', e)),

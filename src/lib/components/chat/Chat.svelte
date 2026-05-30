@@ -42,6 +42,7 @@
 		terminalServers,
 		functions,
 		selectedFolder,
+		selectedCourse,
 		pinnedChats,
 		showEmbeds,
 		selectedTerminalId,
@@ -2461,6 +2462,7 @@
 				session_id: $socket?.id,
 				chat_id: _chatId || undefined,
 				folder_id: $selectedFolder?.id ?? undefined,
+				course_id: $selectedCourse?.id ?? undefined,
 
 				id: responseMessageId,
 				...(messageIdsMap ? { message_ids: messageIdsMap } : {}),

@@ -70,6 +70,18 @@ export const models: Writable<Model[]> = writable([]);
 
 export const knowledge: Writable<null | Document[]> = writable(null);
 export const tools = writable(null);
+
+export type Course = {
+	id: string;
+	user_id: string;
+	name: string;
+	knowledge_id?: string;
+	created_at: number;
+	updated_at: number;
+};
+
+export const courses: Writable<Course[]> = writable([]);
+export const selectedCourse: Writable<Course | null> = writable(null);
 export const skills = writable(null);
 export const functions = writable(null);
 
